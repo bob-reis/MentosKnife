@@ -4,6 +4,15 @@ Caixa de ferramentas de rede para demonstrações autorizadas, com operações
 reais, painel local para projeção e relatórios exportáveis. Alvo:
 **ESP32-C3 SuperMini, sem SD**.
 
+## O dispositivo
+
+O hardware: um ESP32-C3 escondido dentro de uma caixa de Mentos — discreto, do
+tamanho da palma da mão, alimentado por USB. Três vistas em sequência:
+
+| 1 | 2 | 3 |
+|:-:|:-:|:-:|
+| ![Caixa de Mentos com o ESP32-C3 — vista 1](docs/img/Mentos-1.jpg) | ![Caixa de Mentos com o ESP32-C3 — vista 2](docs/img/Mentos-2.jpg) | ![Caixa de Mentos com o ESP32-C3 — vista 3](docs/img/Mentos-3.jpg) |
+
 ## Ferramentas implementadas
 
 - Recon Wi-Fi: SSID, BSSID, canal, RSSI e autenticação.
