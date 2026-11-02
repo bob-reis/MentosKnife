@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# build — compila o firmware e a imagem LittleFS (data/) para o ESP32-C3.
+set -euo pipefail
+cd "$(dirname "$0")"
+
+ENV="mentos-c3"
+PIO=".venv/bin/pio"
+[ -x "$PIO" ] || PIO="pio"
+
+echo ">> Compilando firmware ($ENV)..."
+"$PIO" run -e "$ENV"
+
+echo ">> Gerando imagem LittleFS (data/)..."
+"$PIO" run -e "$ENV" -t buildfs
+
+echo ">> Build concluído."

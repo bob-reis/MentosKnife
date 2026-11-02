@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# flash — grava o firmware e o LittleFS (data/) no ESP32-C3.
+# Uso: ./flash [porta]   (ex.: ./flash /dev/ttyACM0)
+set -euo pipefail
+cd "$(dirname "$0")"
+
+ENV="mentos-c3"
+PORT="${1:-}"
+PORT_ARG=()
+[ -n "$PORT" ] && PORT_ARG=(--upload-port "$PORT")
+PIO=".venv/bin/pio"
+[ -x "$PIO" ] || PIO="pio"
+
+if [ -z "$PORT" ]; then
+  echo ">> Nenhuma porta informada; tentando detecção automática..."
+fi
+
+echo ">> Gravando firmware ($ENV)..."
+"$PIO" run -e "$ENV" -t upload "${PORT_ARG[@]}"
+
+echo ">> Enviando LittleFS (data/)..."
+"$PIO" run -e "$ENV" -t uploadfs "${PORT_ARG[@]}"
+
+echo ">> Flash concluído. Monitor: ${PIO} device monitor -b 115200"

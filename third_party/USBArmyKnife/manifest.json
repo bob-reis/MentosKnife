@@ -1,0 +1,14 @@
+{
+  "repository": "https://github.com/i-am-shodan/USBArmyKnife",
+  "commit": "fcea8c5d3f0ce48652215183272b19f3e1cd8473",
+  "license": "MIT",
+  "files_sha256": {
+    "LICENSE": "8357314af8fbf995e8cba582932dff9335a59027e16c639d73d6b72583e2efe9",
+    "original/PcapBuffer.h": "569ca823bff7bd8ad6de01917f755e86fd4a35fad52dcff8a57e4d91345143d2",
+    "original/PcapBuffer.cpp": "348119674fefa7addc0817fb0b07b503fed5d129c34121a3ba369749d49a2372"
+  },
+  "adapted_files": [
+    "src/storage/PcapBuffer.h",
+    "src/storage/PcapBuffer.cpp"
+  ]
+}

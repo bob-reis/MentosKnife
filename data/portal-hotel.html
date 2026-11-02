@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acesso à internet — Rede do Hotel</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+     background:linear-gradient(150deg,#1e3a2f,#2f5542);color:#f2f7f4;
+     font:16px system-ui,-apple-system,sans-serif;padding:20px}
+.card{width:100%;max-width:400px;background:#fff;color:#1f2d3a;border-radius:14px;
+      padding:34px;box-shadow:0 22px 55px rgba(0,0,0,.4)}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.logo{width:46px;height:46px;border-radius:12px;background:#2f5542;color:#fff;
+      display:flex;align-items:center;justify-content:center;font-size:22px}
+h1{font-size:1.3rem;margin:0 0 6px}
+.sub{color:#5c6b78;margin:0 0 22px;font-size:.95rem;line-height:1.5}
+label{display:block;font-size:.85rem;font-weight:700;margin:16px 0 6px}
+input{width:100%;padding:13px 14px;border:1px solid #c4cfd8;border-radius:8px;
+      font-size:1rem;color:#1f2d3a}
+input:focus{outline:none;border-color:#2f5542;box-shadow:0 0 0 3px rgba(47,85,66,.18)}
+button{width:100%;margin-top:24px;padding:14px;border:none;border-radius:8px;
+       background:#2f5542;color:#fff;font:700 1rem system-ui;cursor:pointer}
+button:disabled{opacity:.65;cursor:wait}
+.note{margin-top:20px;font-size:.8rem;color:#8a99a6;text-align:center}
+#result{min-height:1.5em;margin-top:14px;font-size:.9rem;color:#b91c1c;text-align:center}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand"><div class="logo">🏨</div><div><strong style="font-size:1.05rem">Rede do Hotel</strong></div></div>
+  <h1>Acesso à internet</h1>
+  <p class="sub">Informe seus dados de hóspede para conectar. Esta é uma simulação educativa — não use dados reais.</p>
+  <form id="login">
+    <label for="user">Login fictício (e‑mail ou quarto)</label>
+    <input id="user" name="user" type="text" placeholder="ex.: quarto 204"
+           maxlength="63" autocomplete="off" autocapitalize="none" required>
+    <label for="pass">Senha fictícia</label>
+    <input id="pass" name="pass" type="password" placeholder="••••••••"
+           maxlength="63" autocomplete="off" required>
+    <button type="submit" id="send">Conectar</button>
+  </form>
+  <p id="result" role="status" aria-live="polite"></p>
+  <p class="note">Redes Wi‑Fi públicas podem ser inseguras. Evite digitar senhas reais de outras contas.</p>
+</div>
+<script>
+(() => {
+  const form = document.getElementById('login');
+  const result = document.getElementById('result');
+  const btn = document.getElementById('send');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.textContent = 'Conectando…';
+    result.textContent = '';
+    const sid = (() => { try { return sessionStorage.getItem('mak_sid') || ''; } catch (_) { return ''; } })();
+    const body = 'user=' + encodeURIComponent(document.getElementById('user').value) +
+                 '&pass=' + encodeURIComponent(document.getElementById('pass').value) +
+                 '&sid=' + encodeURIComponent(sid);
+    try {
+      const res = await fetch('/portal/submit', {
+        method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error('rejected');
+      result.style.color = '#1a7f37';
+      result.textContent = 'Registro de simulação confirmado no dispositivo.';
+    } catch (_) {
+      result.style.color = '#b91c1c';
+      result.textContent = 'Não foi possível confirmar o registro. Verifique a conexão e se o operador interrompeu a demonstração.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Conectar';
+    }
+  });
+})();
+</script>
+<script src="/portal-fp.js" defer></script>
+</body>
+</html>

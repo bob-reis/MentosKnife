@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conectar-se à rede — WiFi Visitantes</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+     background:linear-gradient(160deg,#101820,#1b2935);color:#eaf0f6;
+     font:16px system-ui,-apple-system,sans-serif;padding:20px}
+.card{width:100%;max-width:400px;background:#fff;color:#14212c;border-radius:16px;
+      padding:32px;box-shadow:0 24px 60px rgba(0,0,0,.45)}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.logo{width:44px;height:44px;border-radius:12px;background:#101820;color:#fff;
+      display:flex;align-items:center;justify-content:center;font-size:22px}
+h1{font-size:1.35rem;margin:0 0 6px}
+.sub{color:#5c6b78;margin:0 0 24px;font-size:.95rem;line-height:1.5}
+label{display:block;font-size:.85rem;font-weight:700;margin:16px 0 6px;color:#1f2d3a}
+input{width:100%;padding:13px 14px;border:1px solid #c4cfd8;border-radius:9px;
+      font-size:1rem;color:#14212c;background:#fff}
+input:focus{outline:none;border-color:#0a84ff;box-shadow:0 0 0 3px rgba(10,132,255,.18)}
+button{width:100%;margin-top:24px;padding:14px;border:none;border-radius:9px;
+       background:#0a84ff;color:#fff;font:700 1rem system-ui;cursor:pointer}
+button:disabled{opacity:.65;cursor:wait}
+.note{margin-top:20px;font-size:.82rem;color:#8a99a6;line-height:1.5;text-align:center}
+#result{min-height:1.5em;margin-top:14px;font-size:.9rem;color:#b91c1c;text-align:center}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">
+    <div class="logo">📶</div>
+    <div><strong style="font-size:1.05rem">WiFi Visitantes</strong></div>
+  </div>
+  <h1>Conectar-se à rede</h1>
+  <p class="sub">Para acessar a internet, entre com sua conta. Esta é uma simulação educativa — não use dados reais.</p>
+  <form id="login">
+    <label for="user">Login fictício</label>
+    <input id="user" name="user" type="text" placeholder="ex.: voce@empresa.com"
+           maxlength="63" autocomplete="off" autocapitalize="none" required>
+    <label for="pass">Senha fictícia</label>
+    <input id="pass" name="pass" type="password" placeholder="••••••••"
+           maxlength="63" autocomplete="off" required>
+    <button type="submit" id="send">Conectar</button>
+  </form>
+  <p id="result" role="status" aria-live="polite"></p>
+  <p class="note">Não informe a senha de uma conta real em um portal de rede desconhecido.</p>
+</div>
+<script>
+(() => {
+  const form = document.getElementById('login');
+  const result = document.getElementById('result');
+  const btn = document.getElementById('send');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.textContent = 'Conectando…';
+    result.textContent = '';
+    const sid = (() => { try { return sessionStorage.getItem('mak_sid') || ''; } catch (_) { return ''; } })();
+    const body = 'user=' + encodeURIComponent(document.getElementById('user').value) +
+                 '&pass=' + encodeURIComponent(document.getElementById('pass').value) +
+                 '&sid=' + encodeURIComponent(sid);
+    try {
+      const res = await fetch('/portal/submit', {
+        method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error('rejected');
+      result.style.color = '#1a7f37';
+      result.textContent = 'Registro de simulação confirmado no dispositivo.';
+    } catch (_) {
+      result.style.color = '#b91c1c';
+      result.textContent = 'Não foi possível confirmar o registro. Verifique a conexão e se o operador interrompeu a demonstração.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Conectar';
+    }
+  });
+})();
+</script>
+<script src="/portal-fp.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MentosArmyKnife · Console</title><link rel="stylesheet" href="/style.css?v=3"></head>
+<body>
+<section id="sessionLoading" class="login-shell"><div class="brand-mark">M<span>/</span>K</div><p>Restaurando sessão…</p><button id="btnSessionRetry" class="secondary hidden">Tentar novamente</button></section>
+<section class="login-shell hidden" id="loginCard"><div class="brand-mark">M<span>/</span>K</div><p class="eyebrow">MENTOS ARMY KNIFE</p><h1>Console do operador</h1><p class="muted">Conecte, investigue e acompanhe os resultados.</p>
+<form id="loginForm"><label for="pw">Senha do operador</label><input type="password" id="pw" autocomplete="current-password" required><button type="submit">Entrar no console →</button></form><p id="loginMsg" role="status"></p></section>
+<div id="panel" class="hidden app-shell">
+<aside class="sidebar"><a class="brand" href="#ctrl" data-open="ctrl"><span class="brand-mark">M<span>/</span>K</span><span>MentosArmyKnife<small>ESP32-C3 · NETWORK TOOLKIT</small></span></a>
+<p class="nav-label">WORKSPACE</p><nav id="tabs" class="tabs" aria-label="Ferramentas"><button data-tab="ctrl" class="active"><span>01</span>Visão geral</button><button data-tab="recon" class=""><span>02</span>Wi-Fi / PCAP</button><button data-tab="ble" class=""><span>03</span>BLE</button><button data-tab="network" class=""><span>04</span>Rede interna</button><button data-tab="probes" class=""><span>05</span>Probes</button><button data-tab="dns" class=""><span>06</span>DNS observado</button><button data-tab="caps" class=""><span>07</span>Envios do portal<i class="dot" id="capDot"></i></button><button data-tab="devices" class=""><span>08</span>Aparelhos<i class="dot" id="devDot"></i></button><button data-tab="events" class=""><span>09</span>Logs</button><button data-tab="reports" class=""><span>10</span>Relatórios</button><button data-tab="uplink" class=""><span>11</span>Conexão Wi-Fi</button></nav>
+<div class="sidebar-bottom"><span class="pill" id="fw">—</span><button id="btnLogout" class="secondary">Encerrar sessão</button></div></aside>
+<main class="workspace"><header class="topbar"><div><p class="eyebrow">CONSOLE / <span id="pageCategory">OVERVIEW</span></p><h1 id="pageTitle">Visão geral</h1></div><div class="row"><span id="live" class="live">● conectando</span><button class="secondary" id="btnProject">Projeção</button><button class="danger" id="btnStop">■ Parar operações</button></div></header>
+<div id="actionMsg" class="notice" role="status" aria-live="polite"></div>
+<section class="tabpane" id="tab-ctrl"><div class="section-title"><p class="eyebrow">WORKSPACE ATIVO</p><h2>Ferramentas prontas. Resultados visíveis.</h2><p>Escolha a operação. Acompanhe os dados no console e publique as evidências.</p></div>
+<div class="metrics"><div class="stat"><span>Estado do dispositivo</span><b id="stState">—</b></div><div class="stat"><span>Tempo ligado</span><b id="stUptime">—</b></div><div class="stat"><span>Memória livre</span><b id="stHeap">—</b></div><div class="stat"><span>Clientes do AP</span><b id="stClients">—</b></div></div>
+<div class="tool-grid">
+<button class="tool-card" data-open="recon"><span class="tool-type">WIRELESS / PASSIVO</span><h3>Recon Wi-Fi <span>↗</span></h3><p>Redes, autenticação, canais e intensidade de sinal.</p><span class="tool-link">Abrir ferramenta →</span></button>
+<button class="tool-card" data-open="network"><span class="tool-type">LAN / ATIVO</span><h3>Exposição de serviços <span>↗</span></h3><p>Portas TCP, anúncios mDNS e resolução de nomes.</p><span class="tool-link">Investigar rede →</span></button>
+<button class="tool-card" data-open="probes"><span class="tool-type">WIRELESS / OBSERVAÇÃO</span><h3>Probes e privacidade <span>↗</span></h3><p>Solicitações de redes emitidas pelos dispositivos próximos.</p><span class="tool-link">Ver observações →</span></button>
+<button class="tool-card" data-open="dns"><span class="tool-type">AP / TELEMETRIA</span><h3>Consultas DNS <span>↗</span></h3><p>Domínios consultados pelos clientes do AP local.</p><span class="tool-link">Inspecionar consultas →</span></button>
+</div>
+<div class="card feed-card"><div><p class="eyebrow">SAÍDA AO VIVO</p><h2>Discord</h2><p class="note">Eventos durante as operações. Relatório completo sob comando.</p></div><div class="row"><span id="dcEnabled" class="pill">—</span><span id="dcUplink" class="pill">—</span><span class="muted">Fila <b id="dcPending">0</b></span><button id="dcTest" class="secondary">Testar feed</button><button data-open="reports">Abrir relatórios →</button></div></div>
+<p class="note">O C3 oferece observação wireless e diagnóstico de rede. Este firmware não implementa deauth, MITM, injeção USB ou exploração de serviços.</p></section>
+<section class="tabpane hidden" id="tab-network"><div class="section-title"><p class="eyebrow">RECONHECIMENTO ATIVO</p><h2>Rede interna</h2><p>Investigue serviços acessíveis na rede conectada.</p></div>      <div class="card">
+        <h2>Reconhecimento TCP</h2>
+        <p class="note">Um IP da sub-rede conectada. Portas 22, 53, 80, 443, 445, 3389, 8080 e 8443. Porta aberta indica conexão aceita, não uma vulnerabilidade.</p>
+        <form id="tcpForm"><label for="tcpTarget">IP alvo</label><input id="tcpTarget" placeholder="192.168.1.1" required>
+        <div class="row"><button type="submit">Verificar portas</button><button type="button" id="btnTcpStop" class="secondary">Parar</button></div></form>
+        <pre id="tcpStatus">Nenhuma execução.</pre>
+      </div>
+      <div class="card">
+        <h2>Descoberta mDNS</h2>
+        <p class="note">Lista até 12 anúncios IPv4 do serviço escolhido no uplink. Ausência de anúncio não significa ausência de equipamento.</p>
+        <form id="discoveryForm"><label for="discoveryService">Serviço</label>
+          <select id="discoveryService"><option value="http">Web HTTP</option><option value="https">Web HTTPS</option><option value="ipp">Impressoras IPP</option><option value="ssh">SSH</option><option value="smb">Arquivos SMB</option><option value="workstation">Estações</option></select>
+          <button type="submit">Descobrir serviços</button>
+        </form>
+        <pre id="discoveryResult">Nenhuma consulta.</pre>
+      </div>
+      <div class="card">
+        <h2>Consulta DNS</h2>
+        <form id="dnsForm"><label for="dnsHost">Nome de domínio</label><input id="dnsHost" maxlength="253" required><button type="submit">Resolver</button></form>
+        <pre id="dnsResult">Nenhuma consulta.</pre>
+      </div>
+    </section>
+    <section class="tabpane hidden" id="tab-uplink">
+      <div class="card">
+        <h2>Conectar a uma rede Wi-Fi</h2>
+        <button id="btnWifiList">Buscar redes</button>
+        <form id="wifiForm">
+          <label for="wifiSsid">Rede (selecione ou digite o SSID)</label>
+          <input id="wifiSsid" list="wifiNetworks" maxlength="32" required>
+          <datalist id="wifiNetworks"></datalist>
+          <label for="wifiPassword">Senha da rede (vazio para rede aberta)</label>
+          <input id="wifiPassword" type="password" maxlength="63" autocomplete="off">
+          <p class="note">A configuração será salva no dispositivo. O rádio compartilha o canal entre AP e uplink; a conexão ao painel pode cair brevemente.</p>
+          <div class="row"><button type="submit">Conectar</button><button type="button" class="secondary" id="btnDisconnect">Desconectar</button><button type="button" class="secondary" id="btnForget">Esquecer rede</button></div>
+          <p class="note">Desconectar mantém a rede salva (reconecta depois); Esquecer apaga o SSID/senha do dispositivo.</p>
+        </form>
+        <pre id="networkStatus">Sem consulta.</pre>
+      </div>
+      <div class="card">
+        <h2>AP de treinamento (SSID e portal)</h2>
+        <form id="apSsidForm">
+          <label for="apSsid">Nome do AP (SSID)</label>
+          <input id="apSsid" maxlength="32" required>
+          <p class="note">Não use o nome exato da rede real do cliente. Trocar o SSID reinicia o dispositivo — reconecte ao novo nome.</p>
+          <div class="row"><button type="submit">Salvar e aplicar (reinicia)</button></div>
+        </form>
+        <p class="note" id="apSsidMsg"></p>
+        <form id="portalTemplateForm">
+          <label for="portalTemplate">Template do portal</label>
+          <select id="portalTemplate"></select>
+          <p class="note">Visual do formulário exibido em /portal. Aplicação imediata, sem reinício.</p>
+          <div class="row"><button type="submit">Aplicar template</button></div>
+        </form>
+        <p class="note" id="portalTemplateMsg"></p>
+      </div>
+    </section>
+    <!-- Recon -->
+    <section class="tabpane hidden" id="tab-recon">
+      <div class="card">
+        <h2>Recon Wi‑Fi</h2>
+        <div class="row">
+          <button id="btnScan">Varrer APs</button>
+          <button class="secondary" id="btnSniff">Sniffer: OFF</button>
+          <button class="secondary" id="btnPcap">Baixar probes (.pcap)</button>
+        </div>
+        <p class="note" id="reconMsg"></p>
+        <h3 class="sub">Redes próximas</h3>
+        <div class="tbl" id="apTable"></div>
+        <h3 class="sub">Clientes conectados ao nosso AP</h3>
+        <div class="tbl" id="cliTable"></div>
+      </div>
+    </section>
+
+    <!-- BLE -->
+    <section class="tabpane hidden" id="tab-ble">
+      <div class="card">
+        <h2>Discovery BLE</h2>
+        <div class="row"><button id="btnBleScan">Varrer anúncios BLE</button></div>
+        <p class="note" id="bleMsg"></p>
+        <p class="note">Anúncios observados no canal 2,4 GHz (janela curta). O endereço BLE (MAC) não é exibido nem persistido — apenas nome, intensidade e se aceita conexão. BLE e AP compartilham o rádio; a varredura é breve para preservar o portal.</p>
+        <div class="tbl" id="bleTable"></div>
+      </div>
+    </section>
+
+    <!-- Probes -->
+    <section class="tabpane hidden" id="tab-probes">
+      <div class="card">
+        <h2>Probe requests</h2>
+        <p class="note">Ligue o <b>Sniffer</b> na aba Wi-Fi. Exibe solicitações observadas no canal atual; não comprova histórico de conexões.</p>
+        <div class="tbl" id="probeTable"></div>
+      </div>
+    </section>
+
+    <!-- DNS -->
+    <section class="tabpane hidden" id="tab-dns">
+      <div class="card">
+        <h2>Consultas DNS dos clientes</h2>
+        <p class="note">Consultas recebidas pelo DNS local. Não inclui DNS criptografado nem todo o tráfego dos clientes.</p>
+        <div class="tbl" id="dnsTable"></div>
+      </div>
+    </section>
+
+    <!-- Capturas -->
+    <section class="tabpane hidden" id="tab-caps">
+      <div class="card">
+        <h2>Envios recebidos</h2>
+        <p class="note">O que os participantes digitaram no portal. Valores em texto claro, incluídos no relatório baixado ou enviado ao Discord. Use contas de laboratório. Parar preserva os resultados.</p>
+        <div class="tbl" id="capTable"></div>
+      </div>
+    </section>
+
+    <!-- Aparelhos (fingerprint do portal) -->
+    <section class="tabpane hidden" id="tab-devices">
+      <div class="card">
+        <h2>Fingerprint dos aparelhos</h2>
+        <p class="note">Coletado em silêncio pelo JavaScript do portal assim que a página abre — sem pedir permissão. Mostra o que qualquer página aprende sobre o aparelho só por ele abri-la. Efêmero em RAM; incluído no relatório e no Discord ao vivo. IP público/geolocalização não aparecem aqui (AP isolado, sem internet).</p>
+        <div class="tbl" id="devTable"></div>
+      </div>
+    </section>
+
+    <!-- Eventos -->
+    <section class="tabpane hidden" id="tab-events">
+      <div class="card">
+        <h2>Linha do tempo</h2>
+        <div class="events" id="events"></div>
+      </div>
+    </section>
+
+
+<section class="tabpane hidden" id="tab-reports">    <div class="card">
+      <h2>Relatórios e projeção</h2>
+      <p class="note">JSON inclui redes, probes, DNS, portas TCP e valores do portal em texto claro. O PCAP contém apenas probes no canal observado; timestamps relativos ao boot.</p>
+      <div class="row">
+        <button id="btnDownload">Baixar relatório JSON</button>
+        <button id="btnReportDiscord">Enviar relatório ao Discord</button>
+        
+        <button id="btnClear" class="danger">Limpar resultados e fila</button>
+      </div>
+      <p class="note" id="reportStatus"></p>
+    </div>
+</section>
+<footer>WiFi Visitantes · Console local · Parar preserva resultados; Limpar remove a cópia em RAM.</footer></main></div>
+<script src="/app.js?v=3"></script></body></html>

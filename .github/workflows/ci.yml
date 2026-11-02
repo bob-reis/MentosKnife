@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read   # mínimo necessário (segurança §12)
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio
+            ~/.cache/pip
+          key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
+
+      - name: Install PlatformIO
+        run: |
+          python -m pip install --upgrade pip
+          pip install platformio
+
+      - name: Unit tests (host / native)
+        run: pio test -e native
+
+      - name: Build firmware (mentos-c3)
+        run: pio run -e mentos-c3
+
+      - name: Build LittleFS image
+        run: pio run -e mentos-c3 -t buildfs
+
+      - name: Guard — nenhum segredo versionado
+        run: |
+          if git grep -nE 'discord(app)?\.com/api/webhooks/' -- . ':!docs' ':!.github'; then
+            echo "ERRO: possível webhook versionado"; exit 1; fi
+          if git ls-files | grep -E 'secrets\.local\.env|secrets\.h'; then
+            echo "ERRO: arquivo de segredo versionado"; exit 1; fi
